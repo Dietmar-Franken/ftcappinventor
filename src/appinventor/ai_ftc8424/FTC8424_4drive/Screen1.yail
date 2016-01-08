@@ -1,0 +1,147 @@
+#|
+$Source $Yail
+|#
+
+(define-form appinventor.ai_ftc8424.FTC8424_4drive.Screen1 Screen1)
+(require <com.google.youngandroid.runtime>)
+
+(def g$runToPosition? #t)
+(def g$SlowSpeed 1)
+(def g$wheelRatio (call-yail-primitive yail-divide (*list-for-runtime* 1 1.33) '(number number) "yail-divide"))
+(def g$StepSpeed 2)
+(def g$useEncoders? #t)
+(def g$BasketPos "Open")
+(def g$leftEncoderTarget 0)
+(def g$rightEncoderTarget 0)
+(def g$powerNull -999)
+(def (p$robot_init $caller)  (if (get-var g$useEncoders?) (begin   (set-var! g$leftEncoderTarget 0)(set-var! g$rightEncoderTarget 0)((get-var p$setEncoderMode) "resetEncoders")((get-var p$waitForEncoderReset) (lexical-value $caller))((get-var p$setEncoderMode) "useEncoders")((get-var p$setDriveDirection) "Forward" "Reverse")(while (call-yail-primitive yail-not (*list-for-runtime* ((get-var p$moveComplete) (lexical-value $caller))) '(boolean) "not") (begin #f))(if (get-var g$runToPosition?) (begin   ((get-var p$setEncoderMode) "runToPos")(while (call-yail-primitive yail-not (*list-for-runtime* ((get-var p$moveComplete) (lexical-value $caller))) '(boolean) "not") (begin #f))))(call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "MotorMode:"  "Use Encoders") '(text text))) (begin   ((get-var p$setEncoderMode) "noEncoders")((get-var p$setDriveDirection) "Forward" "Reverse")(call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "MotorMode:"  "No Encoders") '(text text)))))
+(def (p$setDrivePower $leftPower $rightPower)  (if (call-yail-primitive yail-not-equal? (*list-for-runtime* (lexical-value $leftPower) (get-var g$powerNull)) '(any any) "not =") (begin   (set-and-coerce-property! 'Drive_BL 'Power (lexical-value $leftPower) 'number)(set-and-coerce-property! 'Drive_FL 'Power (lexical-value $leftPower) 'number)))(if (call-yail-primitive yail-not-equal? (*list-for-runtime* (lexical-value $rightPower) (get-var g$powerNull)) '(any any) "not =") (begin   (set-and-coerce-property! 'Drive_BR 'Power (lexical-value $rightPower) 'number)(set-and-coerce-property! 'Drive_FR 'Power (lexical-value $rightPower) 'number))))
+(def (p$moveComplete $caller) (begin   (call-component-type-method (lexical-value $caller) 'FtcLinearOpMode 'WaitOneFullHardwareCycle (*list-for-runtime*) '(component)) (and-delayed (call-yail-primitive <= (*list-for-runtime* (call-yail-primitive abs (*list-for-runtime* (call-yail-primitive - (*list-for-runtime* (get-property 'Drive_BL 'CurrentPosition) (get-var g$leftEncoderTarget)) '(number number) "-")) '(number) "abs") 5) '(number number) "<=") (and-delayed (and-delayed (call-yail-primitive <= (*list-for-runtime* (call-yail-primitive abs (*list-for-runtime* (call-yail-primitive - (*list-for-runtime* (get-property 'Drive_FL 'CurrentPosition) (get-var g$leftEncoderTarget)) '(number number) "-")) '(number) "abs") 5) '(number number) "<=") (call-yail-primitive <= (*list-for-runtime* (call-yail-primitive abs (*list-for-runtime* (call-yail-primitive - (*list-for-runtime* (get-property 'Drive_BR 'CurrentPosition) (get-var g$rightEncoderTarget)) '(number number) "-")) '(number) "abs") 5) '(number number) "<=")) (call-yail-primitive <= (*list-for-runtime* (call-yail-primitive abs (*list-for-runtime* (call-yail-primitive - (*list-for-runtime* (get-property 'Drive_FR 'CurrentPosition) (get-var g$rightEncoderTarget)) '(number number) "-")) '(number) "abs") 5) '(number number) "<=")))))
+(def (p$robotMove $caller $leftEncoder $leftPower $rightEncoder $rightPower)  (set-var! g$leftEncoderTarget (call-yail-primitive + (*list-for-runtime* (call-yail-primitive * (*list-for-runtime* (lexical-value $leftEncoder) (get-var g$wheelRatio) ) '(number number ) "*") (get-var g$leftEncoderTarget) ) '(number number ) "+"))(set-var! g$rightEncoderTarget (call-yail-primitive + (*list-for-runtime* (call-yail-primitive * (*list-for-runtime* (lexical-value $rightEncoder) (get-var g$wheelRatio) ) '(number number ) "*") (get-var g$rightEncoderTarget) ) '(number number ) "+"))(if (get-var g$runToPosition?) (begin   ((get-var p$setDriveTargetPos) (get-var g$leftEncoderTarget) (get-var g$rightEncoderTarget))(while (and-delayed (call-yail-primitive yail-not-equal? (*list-for-runtime* (get-property 'Drive_BL 'TargetPosition) (get-var g$leftEncoderTarget)) '(any any) "not =") (call-yail-primitive yail-not-equal? (*list-for-runtime* (get-property 'Drive_BR 'TargetPosition) (get-var g$rightEncoderTarget)) '(any any) "not =")) (begin   (call-component-type-method (lexical-value $caller) 'FtcLinearOpMode 'WaitOneFullHardwareCycle (*list-for-runtime*) '(component))))))(call-component-method 'RobotController 'TelemetryAddNumericData (*list-for-runtime* "Left Target set to: "  (get-var g$leftEncoderTarget)) '(text text))(call-component-method 'RobotController 'TelemetryAddNumericData (*list-for-runtime* "Right Target set to: "  (get-var g$rightEncoderTarget)) '(text text))((get-var p$setDrivePower) (lexical-value $leftPower) (lexical-value $rightPower)))
+(def (p$setDriveTargetPos $leftPOS $rightPOS)  (set-and-coerce-property! 'Drive_BL 'TargetPosition (lexical-value $leftPOS) 'number)(set-and-coerce-property! 'Drive_FL 'TargetPosition (lexical-value $leftPOS) 'number)(set-and-coerce-property! 'Drive_BR 'TargetPosition (lexical-value $rightPOS) 'number)(set-and-coerce-property! 'Drive_FR 'TargetPosition (lexical-value $rightPOS) 'number))
+(def (p$setEncoderMode $mode)  (if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $mode) "useEncoders") '(any any) "=") (begin   (set-and-coerce-property! 'Drive_BL 'Mode (get-property 'Drive_BL 'RunMode_RUN_USING_ENCODERS) 'text)(set-and-coerce-property! 'Drive_FL 'Mode (get-property 'Drive_FL 'RunMode_RUN_USING_ENCODERS) 'text)(set-and-coerce-property! 'Drive_BR 'Mode (get-property 'Drive_BR 'RunMode_RUN_USING_ENCODERS) 'text)(set-and-coerce-property! 'Drive_FR 'Mode (get-property 'Drive_FR 'RunMode_RUN_USING_ENCODERS) 'text)) (begin (if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $mode) "resetEncoders") '(any any) "=") (begin   (set-and-coerce-property! 'Drive_BL 'Mode (get-property 'Drive_BL 'RunMode_RESET_ENCODERS) 'text)(set-and-coerce-property! 'Drive_FL 'Mode (get-property 'Drive_FL 'RunMode_RESET_ENCODERS) 'text)(set-and-coerce-property! 'Drive_BR 'Mode (get-property 'Drive_BR 'RunMode_RESET_ENCODERS) 'text)(set-and-coerce-property! 'Drive_FR 'Mode (get-property 'Drive_FR 'RunMode_RESET_ENCODERS) 'text)) (begin (if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $mode) "runToPos") '(any any) "=") (begin   (set-and-coerce-property! 'Drive_BL 'Mode (get-property 'Drive_BL 'RunMode_RUN_TO_POSITION) 'text)(set-and-coerce-property! 'Drive_FL 'Mode (get-property 'Drive_FL 'RunMode_RUN_TO_POSITION) 'text)(set-and-coerce-property! 'Drive_BR 'Mode (get-property 'Drive_BR 'RunMode_RUN_TO_POSITION) 'text)(set-and-coerce-property! 'Drive_FR 'Mode (get-property 'Drive_FR 'RunMode_RUN_TO_POSITION) 'text)) (begin (if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $mode) "noEncoders") '(any any) "=") (begin   (set-and-coerce-property! 'Drive_BL 'Mode (get-property 'Drive_BL 'RunMode_RUN_WITHOUT_ENCODERS) 'text)(set-and-coerce-property! 'Drive_FL 'Mode (get-property 'Drive_FL 'RunMode_RUN_WITHOUT_ENCODERS) 'text)(set-and-coerce-property! 'Drive_BR 'Mode (get-property 'Drive_BR 'RunMode_RUN_WITHOUT_ENCODERS) 'text)(set-and-coerce-property! 'Drive_FR 'Mode (get-property 'Drive_FR 'RunMode_RUN_WITHOUT_ENCODERS) 'text))))))))))
+(def (p$auto_Shutdown )  ((get-var p$setDrivePower) 0 0)(call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Autonomous: "  "Completed!") '(text text)))
+(def (p$waitForEncoderReset $caller)  (call-component-type-method (lexical-value $caller) 'FtcLinearOpMode 'WaitOneFullHardwareCycle (*list-for-runtime*) '(component))(while (and-delayed (call-yail-primitive yail-not-equal? (*list-for-runtime* (get-property 'Drive_BL 'TargetPosition) 0) '(any any) "not =") (call-yail-primitive yail-not-equal? (*list-for-runtime* (get-property 'Drive_BR 'TargetPosition) 0) '(any any) "not =")) (begin   (call-component-type-method (lexical-value $caller) 'FtcLinearOpMode 'WaitOneFullHardwareCycle (*list-for-runtime*) '(component))))(set-var! g$leftEncoderTarget 0)(set-var! g$rightEncoderTarget 0))
+(def (p$setDriveDirection $leftDir $rightDir)  (if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $leftDir) "Forward") '(any any) "=") (begin   (set-and-coerce-property! 'Drive_BL 'Direction (get-property 'Drive_BL 'Direction_FORWARD) 'text)(set-and-coerce-property! 'Drive_FL 'Direction (get-property 'Drive_FL 'Direction_FORWARD) 'text)) (begin (if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $leftDir) "Reverse") '(any any) "=") (begin   (set-and-coerce-property! 'Drive_BL 'Direction (get-property 'Drive_BL 'Direction_REVERSE) 'text)(set-and-coerce-property! 'Drive_FL 'Direction (get-property 'Drive_FL 'Direction_REVERSE) 'text)))))(if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $rightDir) "Forward") '(any any) "=") (begin   (set-and-coerce-property! 'Drive_BR 'Direction (get-property 'Drive_BR 'Direction_FORWARD) 'text)(set-and-coerce-property! 'Drive_FR 'Direction (get-property 'Drive_FR 'Direction_FORWARD) 'text)) (begin (if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $rightDir) "Reverse") '(any any) "=") (begin   (set-and-coerce-property! 'Drive_BR 'Direction (get-property 'Drive_BR 'Direction_REVERSE) 'text)(set-and-coerce-property! 'Drive_FR 'Direction (get-property 'Drive_FR 'Direction_REVERSE) 'text))))))
+(def g$maxManipReleasePos 0.45)
+(def g$minManipReleasePos 0.1)
+(def g$manipReleasePos 0)
+(def g$maxBlueClimberPos 0.8)
+(def g$minBlueClimberPos 0.4)
+(def g$blueClimberPos 0)
+(def g$lastManipReleaseTime 0)
+(def g$lastBlueClimberReleaseTime 0)
+;;; Screen1
+
+(do-after-form-creation (set-and-coerce-property! 'Screen1 'AboutScreen "4-wheel drive version" 'text)
+ (set-and-coerce-property! 'Screen1 'AppName "FTC8424 Robot Controller" 'text)
+ (set-and-coerce-property! 'Screen1 'Title "FTC 8424 - E-Cubed" 'text)
+)
+
+;;; RobotController
+
+(add-component Screen1 FtcRobotController RobotController 
+(set-and-coerce-property! 'RobotController 'Configuration "4drive" 'text)
+
+)
+
+;;; Drive_BL
+
+(add-component Screen1 FtcDcMotor Drive_BL 
+(set-and-coerce-property! 'Drive_BL 'DeviceName "drive_bl" 'text)
+
+)
+
+;;; Drive_BR
+
+(add-component Screen1 FtcDcMotor Drive_BR 
+(set-and-coerce-property! 'Drive_BR 'DeviceName "drive_br" 'text)
+
+)
+
+;;; Auto_Red_Right
+
+(add-component Screen1 FtcLinearOpMode Auto_Red_Right 
+(set-and-coerce-property! 'Auto_Red_Right 'OpModeName "Auto_Red_Right" 'text)
+
+)
+
+(define-event Auto_Red_Right RunOpMode()(set-this-form)
+    (let ( ($leftPower 1) ($rightPower 1)  )   (set-var! g$runToPosition? #t)((get-var p$robot_init) (get-component Auto_Red_Right))(call-component-method 'Auto_Red_Right 'WaitForStart (*list-for-runtime*) '())((get-var p$robotMove) (get-component Auto_Red_Right) 5269 (lexical-value $leftPower) 5269 (lexical-value $rightPower))(call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "MoveTo"  (call-yail-primitive string-append (*list-for-runtime* "Left:" (get-property 'Drive_BL 'TargetPosition) " / Right:" (get-property 'Drive_BR 'TargetPosition) ) '(text text text text ) "join")) '(text text))(while (call-yail-primitive yail-not (*list-for-runtime* ((get-var p$moveComplete) (get-component Auto_Red_Right))) '(boolean) "not") (begin   (call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Position"  (call-yail-primitive string-append (*list-for-runtime* "Left:" (get-property 'Drive_BL 'CurrentPosition) " / Right:" (get-property 'Drive_BR 'CurrentPosition) ) '(text text text text ) "join")) '(text text))((get-var p$setDrivePower) (lexical-value $leftPower) (lexical-value $rightPower))))((get-var p$setDrivePower) 0 0)(call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Status"  "Turning Right") '(text text))(set-lexical! $leftPower 0.6)(set-lexical! $rightPower 0.2)((get-var p$robotMove) (get-component Auto_Red_Right) 1000 (lexical-value $leftPower) -1000 (lexical-value $rightPower))(while (call-yail-primitive yail-not (*list-for-runtime* ((get-var p$moveComplete) (get-component Auto_Red_Right))) '(boolean) "not") (begin   (call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Position"  (call-yail-primitive string-append (*list-for-runtime* "Left:" (get-property 'Drive_BL 'CurrentPosition) " / Right:" (get-property 'Drive_BR 'CurrentPosition) ) '(text text text text ) "join")) '(text text))((get-var p$setDrivePower) (lexical-value $leftPower) (lexical-value $rightPower))))((get-var p$setDrivePower) 0 0)(call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Status"  "Add Beacon code here") '(text text))(set-lexical! $leftPower 1)(set-lexical! $rightPower 1)((get-var p$robotMove) (get-component Auto_Red_Right) 3900 (lexical-value $leftPower) 3900 (lexical-value $leftPower))(while (call-yail-primitive yail-not (*list-for-runtime* ((get-var p$moveComplete) (get-component Auto_Red_Right))) '(boolean) "not") (begin   (call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Position"  (call-yail-primitive string-append (*list-for-runtime* "Left:" (get-property 'Drive_BL 'CurrentPosition) " / Right:" (get-property 'Drive_BR 'CurrentPosition) ) '(text text text text ) "join")) '(text text))((get-var p$setDrivePower) (lexical-value $leftPower) (lexical-value $rightPower))))((get-var p$setDrivePower) 0 0)((get-var p$robotMove) (get-component Auto_Red_Right) -4500 (lexical-value $leftPower) -4500 (lexical-value $leftPower))(while (call-yail-primitive yail-not (*list-for-runtime* ((get-var p$moveComplete) (get-component Auto_Red_Right))) '(boolean) "not") (begin   (call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Position"  (call-yail-primitive string-append (*list-for-runtime* "Left:" (get-property 'Drive_BL 'CurrentPosition) " / Right:" (get-property 'Drive_BR 'CurrentPosition) ) '(text text text text ) "join")) '(text text))((get-var p$setDrivePower) (lexical-value $leftPower) (lexical-value $rightPower))))((get-var p$setDrivePower) 0 0)(call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Status"  "Turn to RED Ramp") '(text text))((get-var p$robotMove) (get-component Auto_Red_Right) 700 (lexical-value $leftPower) -700 (lexical-value $rightPower))(while (call-yail-primitive yail-not (*list-for-runtime* ((get-var p$moveComplete) (get-component Auto_Red_Right))) '(boolean) "not") (begin   (call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Position"  (call-yail-primitive string-append (*list-for-runtime* "Left:" (get-property 'Drive_BL 'CurrentPosition) " / Right:" (get-property 'Drive_BR 'CurrentPosition) ) '(text text text text ) "join")) '(text text))((get-var p$setDrivePower) (lexical-value $leftPower) (lexical-value $rightPower))))((get-var p$setDrivePower) 0 0)(call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Status"  "Drive to Ramp here, slowly") '(text text))(set-lexical! $leftPower 0.25)(set-lexical! $rightPower 0.25)((get-var p$robotMove) (get-component Auto_Red_Right) 4320 (lexical-value $leftPower) 4320 (lexical-value $rightPower))(while (call-yail-primitive yail-not (*list-for-runtime* ((get-var p$moveComplete) (get-component Auto_Red_Right))) '(boolean) "not") (begin   (call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Position"  (call-yail-primitive string-append (*list-for-runtime* "Left:" (get-property 'Drive_BL 'CurrentPosition) " / Right:" (get-property 'Drive_BR 'CurrentPosition) ) '(text text text text ) "join")) '(text text))((get-var p$setDrivePower) (lexical-value $leftPower) (lexical-value $rightPower))))((get-var p$auto_Shutdown) ) ))
+;;; NullOp
+
+(add-component Screen1 FtcLinearOpMode NullOp 
+(set-and-coerce-property! 'NullOp 'OpModeName "NullOp" 'text)
+
+)
+
+(define-event NullOp RunOpMode()(set-this-form)
+    ((get-var p$robot_init) (get-component NullOp))(call-component-method 'NullOp 'WaitForStart (*list-for-runtime*) '())((get-var p$robotMove) (get-component NullOp) 0 1 0 1)(while #t (begin   (call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "Current Pos"  (call-yail-primitive string-append (*list-for-runtime* "Left:" (get-property 'Drive_BL 'CurrentPosition) " / Right:" (get-property 'Drive_BR 'CurrentPosition) ) '(text text text text ) "join")) '(text text))(call-component-method 'NullOp 'WaitOneFullHardwareCycle (*list-for-runtime*) '()))))
+;;; Manipulator
+
+(add-component Screen1 FtcDcMotor Manipulator 
+(set-and-coerce-property! 'Manipulator 'DeviceName "manipulator" 'text)
+
+)
+
+;;; Winch
+
+(add-component Screen1 FtcDcMotor Winch 
+(set-and-coerce-property! 'Winch 'DeviceName "winch" 'text)
+
+)
+
+;;; TeleOp_4drive
+
+(add-component Screen1 FtcOpMode TeleOp_4drive 
+(set-and-coerce-property! 'TeleOp_4drive 'OpModeName "TeleOp_4drive" 'text)
+
+)
+
+(define-event TeleOp_4drive Start()(set-this-form)
+    (set-var! g$BasketPos "Open"))
+(define-event TeleOp_4drive InitLoop()(set-this-form)
+    (set-var! g$useEncoders? #f)(set-and-coerce-property! 'BlueReleaseServo 'Position (get-var g$maxBlueClimberPos) 'number)(set-var! g$blueClimberPos (get-property 'BlueReleaseServo 'Position))(set-and-coerce-property! 'ManipulatorRelease 'Position (get-var g$minManipReleasePos) 'number)(set-var! g$manipReleasePos (get-property 'ManipulatorRelease 'Position))((get-var p$robot_init) (get-component TeleOp_4drive))(call-component-method 'RobotController 'TelemetryAddNumericData (*list-for-runtime* "ServoPos:"  (get-var g$blueClimberPos)) '(text text)))
+(define-event TeleOp_4drive Loop()(set-this-form)
+    (call-component-method 'RobotController 'TelemetryAddTextData (*list-for-runtime* "setDrivePower"  (call-yail-primitive string-append (*list-for-runtime* "LEFT: " (get-property 'Drive_FL 'Power) " / RIGHT: " (get-property 'Drive_FR 'Power) ) '(text text text text ) "join")) '(text text))(if (call-yail-primitive > (*list-for-runtime* (call-yail-primitive abs (*list-for-runtime* (get-property 'FtcGamepad1 'LeftStickY)) '(number) "abs") 0) '(number number) ">") (begin   ((get-var p$setDrivePower) (call-yail-primitive - (*list-for-runtime* (get-property 'FtcGamepad1 'LeftStickY)) '(number) "negate") (get-var g$powerNull))) (begin   ((get-var p$setDrivePower) 0 (get-var g$powerNull))))(if (call-yail-primitive > (*list-for-runtime* (call-yail-primitive abs (*list-for-runtime* (get-property 'FtcGamepad1 'RightStickY)) '(number) "abs") 0) '(number number) ">") (begin   ((get-var p$setDrivePower) (get-var g$powerNull) (call-yail-primitive - (*list-for-runtime* (get-property 'FtcGamepad1 'RightStickY)) '(number) "negate"))) (begin   ((get-var p$setDrivePower) (get-var g$powerNull) 0)))(if (call-yail-primitive > (*list-for-runtime* (get-property 'FtcGamepad1 'LeftTrigger) 0) '(number number) ">") (begin   (set-var! g$SlowSpeed (call-yail-primitive - (*list-for-runtime* 1.01 (get-property 'FtcGamepad1 'LeftTrigger)) '(number number) "-"))) (begin   (set-var! g$SlowSpeed 1)))(if (call-yail-primitive yail-equal? (*list-for-runtime* (get-property 'FtcGamepad2 'DpadDown) #t) '(any any) "=") (begin   (set-and-coerce-property! 'Winch 'Power 0.05 'number)) (begin (if (call-yail-primitive yail-equal? (*list-for-runtime* (get-property 'FtcGamepad2 'DpadUp) #t) '(any any) "=") (begin   (set-and-coerce-property! 'Winch 'Power -0.1 'number)) (begin   (set-and-coerce-property! 'Winch 'Power 0 'number)))))(if (call-yail-primitive > (*list-for-runtime* (call-yail-primitive abs (*list-for-runtime* (get-property 'FtcGamepad2 'LeftStickY)) '(number) "abs") 0) '(number number) ">") (begin   (set-and-coerce-property! 'Manipulator 'Power (get-property 'FtcGamepad2 'LeftStickY) 'number)) (begin   (set-and-coerce-property! 'Manipulator 'Power 0 'number)))(if (and-delayed (get-property 'FtcGamepad2 'A) (call-yail-primitive > (*list-for-runtime* (call-component-method 'TeleOp_4drive 'GetRuntime (*list-for-runtime*) '()) (call-yail-primitive + (*list-for-runtime* (get-var g$lastBlueClimberReleaseTime) 2 ) '(number number ) "+")) '(number number) ">")) (begin   (if (call-yail-primitive yail-equal? (*list-for-runtime* (get-var g$blueClimberPos) (get-var g$minBlueClimberPos)) '(any any) "=") (begin   (set-var! g$blueClimberPos (get-var g$maxBlueClimberPos))) (begin (if (call-yail-primitive yail-equal? (*list-for-runtime* (get-var g$blueClimberPos) (get-var g$maxBlueClimberPos)) '(any any) "=") (begin   (set-var! g$blueClimberPos (get-var g$minBlueClimberPos))))))(set-and-coerce-property! 'BlueReleaseServo 'Position (get-var g$blueClimberPos) 'number)(set-var! g$lastBlueClimberReleaseTime (call-component-method 'TeleOp_4drive 'GetRuntime (*list-for-runtime*) '()))))(if (and-delayed (get-property 'FtcGamepad2 'B) (call-yail-primitive > (*list-for-runtime* (call-component-method 'TeleOp_4drive 'GetRuntime (*list-for-runtime*) '()) (call-yail-primitive + (*list-for-runtime* (get-var g$lastManipReleaseTime) 2 ) '(number number ) "+")) '(number number) ">")) (begin   (if (call-yail-primitive yail-equal? (*list-for-runtime* (get-var g$manipReleasePos) (get-var g$minManipReleasePos)) '(any any) "=") (begin   (set-var! g$manipReleasePos (get-var g$maxManipReleasePos))) (begin (if (call-yail-primitive yail-equal? (*list-for-runtime* (get-var g$manipReleasePos) (get-var g$maxManipReleasePos)) '(any any) "=") (begin   (set-var! g$manipReleasePos (get-var g$minManipReleasePos))))))(set-and-coerce-property! 'ManipulatorRelease 'Position (get-var g$manipReleasePos) 'number)(set-var! g$lastManipReleaseTime (call-component-method 'TeleOp_4drive 'GetRuntime (*list-for-runtime*) '()))))(if (call-yail-primitive > (*list-for-runtime* (call-yail-primitive abs (*list-for-runtime* (get-property 'FtcGamepad2 'RightTrigger)) '(number) "abs") 0.5) '(number number) ">") (begin   (if (call-yail-primitive string=? (*list-for-runtime* (get-var g$BasketPos) "Open") '(text text) "text=") (begin   (set-var! g$BasketPos "Closed")) (begin   (set-var! g$BasketPos "Open")))))(call-component-method 'RobotController 'TelemetryAddNumericData (*list-for-runtime* "ServoPos:"  (get-property 'BlueReleaseServo 'Position)) '(text text)))
+;;; Drive_FL
+
+(add-component Screen1 FtcDcMotor Drive_FL 
+(set-and-coerce-property! 'Drive_FL 'DeviceName "drive_fl" 'text)
+
+)
+
+;;; Drive_FR
+
+(add-component Screen1 FtcDcMotor Drive_FR 
+(set-and-coerce-property! 'Drive_FR 'DeviceName "drive_fr" 'text)
+
+)
+
+;;; FtcGamepad1
+
+(add-component Screen1 FtcGamepad FtcGamepad1 
+)
+
+;;; FtcGamepad2
+
+(add-component Screen1 FtcGamepad FtcGamepad2 
+(set-and-coerce-property! 'FtcGamepad2 'GamepadNumber 2 'number)
+
+)
+
+;;; BlueReleaseServo
+
+(add-component Screen1 FtcServo BlueReleaseServo 
+(set-and-coerce-property! 'BlueReleaseServo 'DeviceName "release_blue" 'text)
+
+)
+
+;;; ManipulatorRelease
+
+(add-component Screen1 FtcServo ManipulatorRelease 
+(set-and-coerce-property! 'ManipulatorRelease 'DeviceName "manip_release" 'text)
+
+)
+
+(init-runtime)
